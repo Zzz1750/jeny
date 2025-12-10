@@ -10,7 +10,11 @@
     <style>
         body{
             padding: 0;
+            margin: 0;
             background-color: rgb(255, 245, 242);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
         #set1_heading{
             position: absolute;
@@ -40,40 +44,293 @@
         #set2_heading{
             position: absolute;
             font-family: "Schoolbell", cursive;
-            top: 10%;
+            top: 30%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 2rem;
             white-space: nowrap;
+            text-align: center;
+            width: 100%;
         }
          #set2_heading2{
             position: absolute;
             font-family: "Schoolbell", cursive;
-            top: 18%;
+            top: 38%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 1rem;
             white-space: nowrap;
+            text-align: center;
+            width: 100%;
         }
         .common_button{
             background-color: white;
             border: 1px solid black;
             padding: 10px 15px;
+            font-family: "Schoolbell", cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            min-width: 120px;
+            transition: all 0.5s ease;
+        }
+        
+        #yes_button {
+            position: absolute;
+            left: 50%;
+            top: 45%;
+            transform: translateX(-50%);
+        }
+        
+        #no_button {
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .buttons-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 120px;
+        }
+        
+        /* Full screen container for the NO button */
+        #no_button_container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allow clicks to pass through except on button */
+            z-index: 1;
+        }
+        
+        #no_button_wrapper {
+            position: absolute;
+            pointer-events: auto; /* Enable clicks on button */
+            /* Start centered by default */
+            left: 50%;
+            top: 55%;
+            transform: translate(-50%, -50%);
+        }
+
+        #set3_heading{
+            position: absolute;
+            font-family: "Schoolbell", cursive;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            white-space: nowrap;
+        }
+        #set3_heading2{
+            position: absolute;
+            font-family: "Schoolbell", cursive;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+        #set3_image{
+            position: absolute;
+            width: 30%;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #set1_button{
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 10px 30px;
+            font-size: 1rem;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         }
     </style>
 </head>
 <body>
-    <div id="set1" style="display: none;">
+    <div id="set1">
         <h1 id="set1_heading">. für Jenny .</h1>
         <p id="set1_heading2">by zoya</p>
         <img id="set1_image" src="./1.png" alt="">
+        <button id="set1_button" onclick="set2()">next</button>
     </div>
-    <div id="set2">
+    <div id="set2" style="display: none">
         <h1 id="set2_heading">Lets go out tomo?</h1>
         <p id="set2_heading2">dont click no</p>
-        <button id="yes_button" class="common_button">YES </button>
-        <button id="no_button" class="common_button">NO :(</button>
-
+        <div class="buttons-container">
+            <button id="yes_button" class="common_button" onclick="set3()">YES :)</button>
+        </div>
+        <!-- Full screen container for NO button -->
+        <div id="no_button_container">
+            <div id="no_button_wrapper">
+                <button id="no_button" class="common_button">NO :(</button>
+            </div>
+        </div>
     </div>
+
+    <div id="set3" style="display: none">
+        <h1 id="set3_heading">letssgooooo</h1>
+        <p id="set3_heading2">see u tomo cutie</p>
+        <img id="set3_image" src="./2.png" alt="">
+    </div>
+
+    <script>
+        let buttonWidth, buttonHeight;
+        
+        // Set initial position when set2 is shown
+        function setInitialPosition() {
+            const yesButton = document.getElementById('yes_button');
+            const noButtonWrapper = document.getElementById('no_button_wrapper');
+            const noButton = document.getElementById('no_button');
+            const noButtonContainer = document.getElementById('no_button_container');
+            
+            if (!yesButton || !noButtonWrapper) return;
+            
+            // Get button dimensions if not already set
+            if (!buttonWidth || !buttonHeight) {
+                buttonWidth = noButton.offsetWidth;
+                buttonHeight = noButton.offsetHeight;
+            }
+            
+            // Get container dimensions
+            const containerRect = noButtonContainer.getBoundingClientRect();
+            
+            // Center the NO button below the YES button
+            const centerX = (containerRect.width / 2) - (buttonWidth / 2);
+            
+            // Position it 20px below where the YES button would be
+            // Since YES button is at 45% of viewport height
+            const viewportHeight = window.innerHeight;
+            const belowYes = (viewportHeight * 0.45) + 80; // YES button height + padding
+            
+            noButtonWrapper.style.left = `${centerX}px`;
+            noButtonWrapper.style.top = `${belowYes}px`;
+            noButtonWrapper.style.transform = 'none';
+            noButtonWrapper.style.transition = 'none';
+        }
+        
+        // Function to get a random position within the container
+        function getRandomPosition() {
+            const noButtonContainer = document.getElementById('no_button_container');
+            const containerRect = noButtonContainer.getBoundingClientRect();
+            
+            // Calculate safe boundaries (keep button fully inside container)
+            const maxX = containerRect.width - buttonWidth;
+            const maxY = containerRect.height - buttonHeight;
+            
+            // Generate random position within boundaries
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            return { x: randomX, y: randomY };
+        }
+        
+        // Function to smoothly move the NO button
+        function moveNoButton() {
+            const noButtonWrapper = document.getElementById('no_button_wrapper');
+            if (!noButtonWrapper) return;
+            
+            // Get new position
+            const newPosition = getRandomPosition();
+            
+            // Animate to new position
+            noButtonWrapper.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            noButtonWrapper.style.left = `${newPosition.x}px`;
+            noButtonWrapper.style.top = `${newPosition.y}px`;
+        }
+        
+        // Initialize NO button when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const noButton = document.getElementById('no_button');
+            
+            // Get button dimensions
+            buttonWidth = noButton.offsetWidth;
+            buttonHeight = noButton.offsetHeight;
+            
+            // Add click event listener to NO button
+            noButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                moveNoButton();
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const noButtonWrapper = document.getElementById('no_button_wrapper');
+                const noButtonContainer = document.getElementById('no_button_container');
+                
+                if (!noButtonWrapper || !noButtonContainer) return;
+                
+                // Update button position to stay within bounds
+                const wrapperRect = noButtonWrapper.getBoundingClientRect();
+                const containerRect = noButtonContainer.getBoundingClientRect();
+                
+                // Check if button is outside container
+                let needsReposition = false;
+                let newX = parseFloat(noButtonWrapper.style.left) || 0;
+                let newY = parseFloat(noButtonWrapper.style.top) || 0;
+                
+                // Check right boundary
+                if (wrapperRect.right > containerRect.right) {
+                    newX = containerRect.width - buttonWidth;
+                    needsReposition = true;
+                }
+                
+                // Check bottom boundary
+                if (wrapperRect.bottom > containerRect.bottom) {
+                    newY = containerRect.height - buttonHeight;
+                    needsReposition = true;
+                }
+                
+                // Check left boundary
+                if (wrapperRect.left < containerRect.left) {
+                    newX = 0;
+                    needsReposition = true;
+                }
+                
+                // Check top boundary
+                if (wrapperRect.top < containerRect.top) {
+                    newY = 0;
+                    needsReposition = true;
+                }
+                
+                if (needsReposition) {
+                    noButtonWrapper.style.transition = 'all 0.3s ease';
+                    noButtonWrapper.style.left = `${newX}px`;
+                    noButtonWrapper.style.top = `${newY}px`;
+                }
+            });
+            
+            // Also handle touch events for mobile
+            noButton.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                moveNoButton();
+            });
+            
+            // Prevent button from being dragged
+            noButton.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+            });
+        });
+
+        function set2(){
+            document.getElementById('set1').style.display='none';
+            document.getElementById('set2').style.display='block';
+            
+            // Wait a bit for the layout to update, then position the NO button
+            setTimeout(() => {
+                setInitialPosition();
+            }, 50);
+        }
+
+        function set3(){
+            document.getElementById('set2').style.display='none';
+            document.getElementById('set3').style.display='block';
+        }
+    </script>
 </body>
 </html>
